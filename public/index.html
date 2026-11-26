@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Investorasi — Toko Online Barang Nyata</title>
+<meta name="description" content="Investorasi: toko online barang nyata — komisi 20% dari penjualan yang benar-benar terjadi.">
+<meta name="theme-color" content="#16a34a">
+<link rel="stylesheet" href="/style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo">🛍️</span><div><h1>Investorasi</h1><p>Toko online barang nyata</p></div></div>
+  <button class="cart-btn" id="btnCartTop" type="button" aria-label="Keranjang">🛒 <span id="cartCount">0</span></button>
+</header>
+<div id="toast" role="status"></div>
+
+<main id="main">
+  <!-- BERANDA -->
+  <section class="view" id="view-beranda">
+    <div class="banner" id="banner"><div class="banner-inner"><h2>Investorasi</h2><p>Toko online barang nyata — komisi 20% dari penjualan yang benar-benar terjadi.</p></div></div>
+    <div id="telegramWrap" class="hidden" style="margin:12px 0"><a id="telegramLink" class="btn btn-outline" href="#" target="_blank" rel="noopener" style="width:100%;text-align:center">💬 Gabung Grup Telegram</a></div>
+    <section class="card" id="eventsCard"><h2>📢 Info &amp; Event</h2><div id="eventsList"><p class="muted">Memuat…</p></div></section>
+    <section class="card"><h2>👑 Langganan VIP</h2><p class="muted">Berlangganan VIP, pilih produk gratis sesuai tingkatmu. Check-in harian member VIP dapat <b>voucher belanja</b> (bukan uang tunai, tidak bisa ditarik).</p><div id="vipListBeranda"></div></section>
+    <p class="small center">Investorasi — barang nyata, harga jelas, tanpa janji keuntungan.</p>
+  </section>
+
+  <!-- PRODUK -->
+  <section class="view hidden" id="view-produk">
+    <section class="card"><h2>🛍️ Semua Produk</h2><p class="muted">Ketuk produk untuk detail. Komisi penjual <b>20%</b> dari harga — dibayar saat pesanan berstatus <b>Dibayar</b>.</p><div id="productGrid" class="grid"></div></section>
+    <section class="card"><h2>👑 Langganan VIP</h2><div id="vipListProduk"></div></section>
+  </section>
+
+  <!-- UNDANG -->
+  <section class="view hidden" id="view-undang">
+    <section class="card"><h2>👥 Undang Teman</h2><p class="muted">Bagikan kode undanganmu. Teman yang daftar lewat linkmu <b>dan</b> melakukan minimal 1 pembelian dihitung sebagai teman terkualifikasi.</p>
+      <p>Kode undangan kamu: <b id="myInviteCode">—</b></p>
+      <div class="row"><input id="inviteLinkInput" type="text" readonly value=""><button class="btn btn-small" id="btnCopyInvite" type="button">📋 Salin</button></div>
+      <div class="row"><button class="btn btn-primary" id="btnShareInvite" type="button" style="flex:1">📤 Bagikan Link</button><a class="btn btn-primary" id="btnWaInvite" href="#" target="_blank" rel="noopener" style="flex:1;text-align:center">💬 WhatsApp</a></div>
+      <p class="small" id="inviteStats">—</p>
+      <h3>🎁 Hadiah Tingkat Undang Teman</h3><div id="inviteLadder"></div>
+    </section>
+  </section>
+
+  <!-- DOMPET -->
+  <section class="view hidden" id="view-dompet">
+    <section class="card"><h2>💰 Dompet</h2>
+      <p>Saldo komisi: <b id="walletBalance">Rp0</b></p>
+      <p class="muted">Saldo hanya berasal dari komisi 20% atas penjualan yang benar-benar terjadi (pesanan berstatus Dibayar). Penarikan minimal <b>Rp100.000</b>, diproses manual maks. 3 hari kerja.</p>
+      <h3>🎟️ Voucher Saya</h3><p class="muted small">Voucher adalah potongan belanja saja — bukan uang tunai dan tidak bisa ditarik. Voucher tampil terpisah dari saldo.</p>
+      <div id="voucherList"><p class="muted">Memuat…</p></div>
+      <h3>Tarik Saldo</h3>
+      <form id="withdrawForm">
+        <label for="wdAmount">Nominal (min Rp100.000)</label>
+        <input id="wdAmount" type="number" min="100000" step="1000" placeholder="100000" required>
+        <label for="wdMethod">Metode penarikan</label>
+        <select id="wdMethod"><option>BCA</option><option>BRI</option><option>Mandiri</option><option>SeaBank</option><option>OVO</option><option>DANA</option><option>ShopeePay</option><option>GoPay</option></select>
+        <label for="wdAccount">Nomor rekening / nomor HP</label>
+        <input id="wdAccount" type="text" placeholder="Nomor rekening atau nomor HP tujuan" required>
+        <label for="wdName">Nama pemilik rekening / akun</label>
+        <input id="wdName" type="text" placeholder="Nama sesuai rekening" required>
+        <button class="btn btn-primary" type="submit" style="width:100%">Ajukan Penarikan</button>
+      </form>
+      <h3>Riwayat Penarikan</h3><div id="withdrawHistory"><p class="muted">Belum ada penarikan.</p></div>
+      <h3>Riwayat Saldo</h3><div id="walletEntries"><p class="muted">Belum ada riwayat.</p></div>
+    </section>
+  </section>
+
+  <!-- SAYA -->
+  <section class="view hidden" id="view-saya">
+    <section class="card"><h2>👤 Profil Saya</h2><div id="profileBox"><p class="muted">Memuat…</p></div>
+      <p id="vipBadge" class="hidden pill">👑 Member VIP</p>
+      <div class="row"><button class="btn btn-outline" id="btnLogout" type="button">Keluar</button></div>
+    </section>
+    <section class="card"><h2>📦 Pesanan Saya</h2><div id="myOrders"><p class="muted">Memuat…</p></div></section>
+    <section class="card"><h2>📄 Kebijakan</h2>
+      <ul class="link-list">
+        <li><a href="/policies/syarat.html">Syarat &amp; Ketentuan</a></li>
+        <li><a href="/policies/privasi.html">Kebijakan Privasi</a></li>
+        <li><a href="/policies/pengiriman.html">Kebijakan Pengiriman</a></li>
+        <li><a href="/policies/pengembalian.html">Kebijakan Pengembalian</a></li>
+        <li><a href="/policies/komisi.html">Kebijakan Komisi &amp; Penarikan</a></li>
+      </ul>
+      <button class="btn btn-outline" id="btnChatSaya" type="button">💬 Live Chat dengan Pemilik</button>
+    </section>
+    <p class="center"><button class="link-btn" id="btnAdminOpen" type="button">Panel Pemilik</button></p>
+  </section>
+
+  <!-- LOGIN -->
+  <section class="view hidden" id="view-login">
+    <section class="card login-card">
+      <h2>Selamat datang di Investorasi</h2>
+      <p class="muted">Masuk untuk belanja, klaim hadiah undang teman, dan tarik komisi.</p>
+      <div id="googleArea" class="google-area">
+        <div id="googleBtn"></div>
+        <p class="small muted" id="googleNote"></p>
+      </div>
+      <div class="divider"><span>atau masuk dengan email</span></div>
+      <div class="tabs-mini"><button type="button" id="tabLoginBtn" class="active">Masuk</button><button type="button" id="tabRegisterBtn">Daftar</button></div>
+      <form id="loginForm">
+        <label for="loginEmail">Email</label><input id="loginEmail" type="email" required placeholder="email@contoh.com">
+        <label for="loginPass">Kata sandi</label><input id="loginPass" type="password" required placeholder="Kata sandi">
+        <button class="btn btn-primary" type="submit" style="width:100%">Masuk</button>
+      </form>
+      <form id="registerForm" class="hidden">
+        <label for="regName">Nama</label><input id="regName" type="text" required placeholder="Nama lengkap">
+        <label for="regEmail">Email</label><input id="regEmail" type="email" required placeholder="email@contoh.com">
+        <label for="regPass">Kata sandi (min. 6 karakter)</label><input id="regPass" type="password" required minlength="6" placeholder="Minimal 6 karakter">
+        <label for="regInvite">Kode undangan (opsional)</label><input id="regInvite" type="text" placeholder="INV-...">
+        <button class="btn btn-primary" type="submit" style="width:100%">Daftar</button>
+      </form>
+      <p class="small" id="loginMsg"></p>
+    </section>
+  </section>
+
+  <!-- ADMIN -->
+  <section class="view hidden" id="view-admin">
+    <div id="adminPinBox" class="card">
+      <h2>🔐 Panel Pemilik</h2><p class="muted">Masukkan PIN pemilik untuk melanjutkan.</p>
+      <form id="adminPinForm"><label for="adminPin">PIN (bawaan: 123456)</label><input id="adminPin" type="password" inputmode="numeric" placeholder="PIN pemilik" required><button class="btn btn-primary" type="submit" style="width:100%">Masuk Panel</button></form>
+      <p class="small" id="adminPinMsg"></p>
+      <p class="small muted">PIN bawaan adalah <b>123456</b>. Segera ganti PIN di bagian bawah panel setelah masuk.</p>
+    </div>
+    <div id="adminPanel" class="hidden">
+      <div class="row"><h2 style="flex:1">🔐 Panel Pemilik</h2><button class="btn btn-outline btn-small" id="btnAdminLogout" type="button">Keluar Panel</button></div>
+      <section class="card"><h3>📊 Ringkasan</h3><div id="adminOverview"><p class="muted">Memuat…</p></div></section>
+      <section class="card"><h3>📦 Pesanan</h3><div class="row"><select id="adminOrderFilter"><option value="">Semua status</option><option>Menunggu Pembayaran</option><option>Dibayar</option><option>Dikirim</option><option>Selesai</option></select><button class="btn btn-small" id="btnAdminOrdersRefresh" type="button">🔄 Muat Ulang</button></div><div id="adminOrders"><p class="muted">Memuat…</p></div></section>
+      <section class="card"><h3>💸 Penarikan</h3><div id="adminWithdrawals"><p class="muted">Memuat…</p></div></section>
+      <section class="card"><h3>🛍️ Produk</h3><div id="adminProducts"><p class="muted">Memuat…</p></div>
+        <h4 id="prodFormTitle">Tambah / Edit Produk</h4>
+        <form id="adminProductForm">
+          <input type="hidden" id="apId">
+          <label for="apName">Nama</label><input id="apName" required>
+          <label for="apPrice">Harga (Rp)</label><input id="apPrice" type="number" min="0" required>
+          <label for="apTier">Tingkat VIP (0 = bukan hadiah VIP)</label><input id="apTier" type="number" min="0" value="0">
+          <label for="apDesc">Deskripsi</label><textarea id="apDesc" rows="2"></textarea>
+          <label for="apImage">Foto (URL atau upload di bawah)</label><input id="apImage" type="text" placeholder="/products/xxx.jpg atau https://...">
+          <label for="apImageFile">Upload foto produk (maks. ~3 MB)</label><input id="apImageFile" type="file" accept="image/png,image/jpeg,image/webp">
+          <label><input id="apActive" type="checkbox" checked> Aktif</label>
+          <button class="btn btn-primary" type="submit" style="width:100%">Simpan Produk</button>
+        </form>
+      </section>
+      <section class="card"><h3>👑 Pengaturan VIP per Tingkat</h3><p class="muted small">Nilai check-in adalah <b>voucher belanja</b> per hari (bukan uang tunai). Bawaan: VIP 1–4 Rp5.000, VIP 5–7 Rp15.000.</p><div id="adminVipTiers"><p class="muted">Memuat…</p></div></section>
+      <section class="card"><h3>📅 Pengaturan Check-in</h3>
+        <label for="setWindowDays">Jendela check-in (hari sejak langganan aktif)</label><input id="setWindowDays" type="number" min="1" value="30">
+        <label for="setVoucherDays">Masa berlaku voucher check-in (hari)</label><input id="setVoucherDays" type="number" min="1" value="30">
+        <button class="btn btn-primary" id="btnSaveCheckinSettings" type="button">Simpan Pengaturan Check-in</button>
+      </section>
+      <section class="card"><h3>🖼️ Tampilan Banner</h3>
+        <label for="bannerColorInput">Warna banner</label>
+        <div class="row"><input id="bannerColorInput" type="color" value="#16a34a" style="width:64px;padding:2px"><input id="bannerColorText" type="text" value="#16a34a" style="flex:1"></div>
+        <button class="btn btn-primary" id="btnSaveBannerColor" type="button">Simpan Warna Banner</button>
+        <label for="bannerFile">Upload gambar banner</label><input id="bannerFile" type="file" accept="image/png,image/jpeg,image/webp">
+        <div class="row"><button class="btn btn-outline" id="btnResetBanner" type="button">Reset ke bawaan</button></div>
+      </section>
+      <section class="card"><h3>📢 Event</h3><div id="adminEvents"><p class="muted">Memuat…</p></div>
+        <h4>Tambah / Edit Event</h4>
+        <form id="adminEventForm"><input type="hidden" id="aeId">
+          <label for="aeTitle">Judul</label><input id="aeTitle" required>
+          <label for="aeText">Isi</label><textarea id="aeText" rows="2"></textarea>
+          <label for="aeImageFile">Gambar event (opsional)</label><input id="aeImageFile" type="file" accept="image/png,image/jpeg,image/webp">
+          <label><input id="aeVisible" type="checkbox" checked> Tampilkan</label>
+          <button class="btn btn-primary" type="submit" style="width:100%">Simpan Event</button>
+        </form>
+      </section>
+      <section class="card"><h3>💬 Live Chat — Balasan Pemilik</h3><div id="adminChatThreads"><p class="muted">Memuat…</p></div>
+        <label for="adminChatUser">Balas ke pengguna</label><select id="adminChatUser"></select>
+        <label for="adminChatMsg">Pesan balasan</label><textarea id="adminChatMsg" rows="2"></textarea>
+        <button class="btn btn-primary" id="btnAdminChatSend" type="button">Kirim Balasan</button>
+      </section>
+      <section class="card"><h3>🔗 Link Grup Telegram</h3>
+        <label for="setTelegram">Link grup Telegram (kosongkan untuk menyembunyikan tombol)</label><input id="setTelegram" type="text" placeholder="https://t.me/...">
+        <button class="btn btn-primary" id="btnSaveTelegram" type="button">Simpan Link Telegram</button>
+      </section>
+      <section class="card"><h3>📱 QRIS</h3>
+        <p class="muted small">Upload gambar QRIS (PNG). Selama belum ada QRIS, checkout menampilkan teks "menunggu aktivasi QRIS".</p>
+        <label for="qrisFile">Upload QRIS (PNG)</label><input id="qrisFile" type="file" accept="image/png,image/jpeg,image/webp">
+        <p class="small" id="qrisStatus">—</p>
+      </section>
+      <section class="card"><h3>🔑 Google Client ID</h3>
+        <p class="muted small">Agar tombol "Masuk dengan Google" aktif, pemilik harus menambahkan domain Railway ini sebagai <b>Authorized JavaScript origin</b> di Google Cloud Console → APIs &amp; Services → Credentials → OAuth client "Nailong Runner Web". Sampai langkah itu selesai, login Google tetap tidak aktif dan aplikasi tidak boleh rusak — pengguna tetap bisa daftar/masuk dengan email.</p>
+        <label for="setGoogleClientId">Google Client ID</label><input id="setGoogleClientId" type="text" placeholder="xxxx.apps.googleusercontent.com">
+        <button class="btn btn-primary" id="btnSaveGoogleClientId" type="button">Simpan Google Client ID</button>
+      </section>
+      <section class="card"><h3>🔒 Ganti PIN</h3>
+        <form id="adminChangePinForm">
+          <label for="oldPin">PIN lama</label><input id="oldPin" type="password" inputmode="numeric" required>
+          <label for="newPin">PIN baru (4–8 digit)</label><input id="newPin" type="password" inputmode="numeric" required>
+          <button class="btn btn-primary" type="submit" style="width:100%">Ganti PIN</button>
+        </form>
+      </section>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL: detail produk / checkout / keranjang / VIP / chat -->
+<div class="modal hidden" id="modal" role="dialog" aria-modal="true"><div class="modal-box" id="modalBox"></div></div>
+
+<!-- Live chat -->
+<button class="chat-fab" id="chatFab" type="button" aria-label="Live chat">💬</button>
+<div class="chat-panel hidden" id="chatPanel">
+  <div class="chat-head"><b>💬 Live Chat</b><button type="button" id="chatClose">✕</button></div>
+  <div class="chat-body" id="chatBody"><p class="muted">Masuk dulu untuk mengobrol dengan pemilik.</p></div>
+  <div class="chat-input"><input id="chatMsg" type="text" placeholder="Tulis pesan…"><button class="btn btn-primary btn-small" id="chatSend" type="button">Kirim</button></div>
+</div>
+
+<nav class="tab-nav" aria-label="Navigasi utama">
+  <button data-tab="beranda" class="aktif"><span class="ico">🏠</span>Beranda</button>
+  <button data-tab="produk"><span class="ico">🛍️</span>Produk</button>
+  <button data-tab="undang"><span class="ico">👥</span>Undang</button>
+  <button data-tab="dompet"><span class="ico">💰</span>Dompet</button>
+  <button data-tab="saya"><span class="ico">👤</span>Saya</button>
+</nav>
+<script src="/app.js"></script>
+</body>
+</html>
