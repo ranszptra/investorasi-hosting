@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Panel Pemilik — Investorasi</title>
+<meta name="description" content="Panel Pemilik Investorasi — halaman terpisah dari toko.">
+<meta name="theme-color" content="#16a34a">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo">🔐</span><div><h1>Panel Pemilik</h1><p>Investorasi — halaman terpisah dari toko</p></div></div>
+  <a class="cart-btn" href="/" style="text-decoration:none">← Toko</a>
+</header>
+<div id="toast" role="status"></div>
+
+<main id="main">
+  <div id="adminPinBox" class="card">
+    <h2>🔐 Panel Pemilik</h2><p class="muted">Masukkan PIN pemilik untuk melanjutkan.</p>
+    <form id="adminPinForm"><label for="adminPin">PIN pemilik</label><input id="adminPin" type="password" inputmode="numeric" placeholder="PIN pemilik" required><button class="btn btn-primary" type="submit" style="width:100%">Masuk Panel</button></form>
+    <p class="small" id="adminPinMsg"></p>
+  </div>
+  <div id="adminPanel" class="hidden">
+    <div class="row"><h2 style="flex:1">🔐 Panel Pemilik</h2><button class="btn btn-outline btn-small" id="btnAdminLogout" type="button">Keluar Panel</button></div>
+    <section class="card"><h3>📊 Ringkasan</h3><div id="adminOverview"><p class="muted">Memuat…</p></div></section>
+    <section class="card"><h3>📦 Pesanan</h3><div class="row"><select id="adminOrderFilter"><option value="">Semua status</option><option>Menunggu Pembayaran</option><option>Dibayar</option><option>Dikirim</option><option>Selesai</option></select><button class="btn btn-small" id="btnAdminOrdersRefresh" type="button">🔄 Muat Ulang</button></div><div id="adminOrders"><p class="muted">Memuat…</p></div></section>
+    <section class="card"><h3>💸 Penarikan</h3><div id="adminWithdrawals"><p class="muted">Memuat…</p></div></section>
+    <section class="card"><h3>🛍️ Produk</h3><div id="adminProducts"><p class="muted">Memuat…</p></div>
+      <h4 id="prodFormTitle">Tambah / Edit Produk</h4>
+      <form id="adminProductForm">
+        <input type="hidden" id="apId">
+        <label for="apName">Nama</label><input id="apName" required>
+        <label for="apPrice">Harga (Rp)</label><input id="apPrice" type="number" min="0" required>
+        <label for="apTier">Tingkat VIP (0 = bukan hadiah VIP)</label><input id="apTier" type="number" min="0" value="0">
+        <label for="apDesc">Deskripsi</label><textarea id="apDesc" rows="2"></textarea>
+        <label for="apImage">Foto (URL atau upload di bawah)</label><input id="apImage" type="text" placeholder="/products/xxx.jpg atau https://...">
+        <label for="apImageFile">Upload foto produk (maks. ~3 MB)</label><input id="apImageFile" type="file" accept="image/png,image/jpeg,image/webp">
+        <label><input id="apActive" type="checkbox" checked> Aktif</label>
+        <button class="btn btn-primary" type="submit" style="width:100%">Simpan Produk</button>
+      </form>
+    </section>
+    <section class="card"><h3>👑 Pengaturan VIP per Tingkat</h3><p class="muted small">Nilai check-in adalah <b>voucher belanja</b> per hari (bukan uang tunai). Bawaan: VIP 1–4 Rp5.000, VIP 5–7 Rp15.000.</p><div id="adminVipTiers"><p class="muted">Memuat…</p></div></section>
+    <section class="card"><h3>📅 Pengaturan Check-in</h3>
+      <label for="setWindowDays">Jendela check-in (hari sejak langganan aktif)</label><input id="setWindowDays" type="number" min="1" value="30">
+      <label for="setVoucherDays">Masa berlaku voucher check-in (hari)</label><input id="setVoucherDays" type="number" min="1" value="30">
+      <button class="btn btn-primary" id="btnSaveCheckinSettings" type="button">Simpan Pengaturan Check-in</button>
+    </section>
+    <section class="card"><h3>🖼️ Tampilan Banner</h3>
+      <label for="bannerColorInput">Warna banner</label>
+      <div class="row"><input id="bannerColorInput" type="color" value="#16a34a" style="width:64px;padding:2px"><input id="bannerColorText" type="text" value="#16a34a" style="flex:1"></div>
+      <button class="btn btn-primary" id="btnSaveBannerColor" type="button">Simpan Warna Banner</button>
+      <label for="bannerFile">Upload gambar banner</label><input id="bannerFile" type="file" accept="image/png,image/jpeg,image/webp">
+      <div class="row"><button class="btn btn-outline" id="btnResetBanner" type="button">Reset ke bawaan</button></div>
+    </section>
+    <section class="card"><h3>📢 Event</h3><div id="adminEvents"><p class="muted">Memuat…</p></div>
+      <h4>Tambah / Edit Event</h4>
+      <form id="adminEventForm"><input type="hidden" id="aeId">
+        <label for="aeTitle">Judul</label><input id="aeTitle" required>
+        <label for="aeText">Isi</label><textarea id="aeText" rows="2"></textarea>
+        <label for="aeImageFile">Gambar event (opsional)</label><input id="aeImageFile" type="file" accept="image/png,image/jpeg,image/webp">
+        <label><input id="aeVisible" type="checkbox" checked> Tampilkan</label>
+        <button class="btn btn-primary" type="submit" style="width:100%">Simpan Event</button>
+      </form>
+    </section>
+    <section class="card"><h3>💬 Live Chat — Balasan Pemilik</h3><div id="adminChatThreads"><p class="muted">Memuat…</p></div>
+      <label for="adminChatUser">Balas ke pengguna</label><select id="adminChatUser"></select>
+      <label for="adminChatMsg">Pesan balasan</label><textarea id="adminChatMsg" rows="2"></textarea>
+      <button class="btn btn-primary" id="btnAdminChatSend" type="button">Kirim Balasan</button>
+    </section>
+    <section class="card"><h3>🔗 Link Grup Telegram</h3>
+      <label for="setTelegram">Link grup Telegram (kosongkan untuk menyembunyikan tombol)</label><input id="setTelegram" type="text" placeholder="https://t.me/...">
+      <button class="btn btn-primary" id="btnSaveTelegram" type="button">Simpan Link Telegram</button>
+    </section>
+    <section class="card"><h3>📱 QRIS</h3>
+      <p class="muted small">Upload gambar QRIS (PNG). Selama belum ada QRIS, checkout menampilkan teks "menunggu aktivasi QRIS".</p>
+      <label for="qrisFile">Upload QRIS (PNG)</label><input id="qrisFile" type="file" accept="image/png,image/jpeg,image/webp">
+      <p class="small" id="qrisStatus">—</p>
+    </section>
+    <section class="card"><h3>🔑 Google Client ID</h3>
+      <p class="muted small">Agar tombol "Masuk dengan Google" aktif, pemilik harus menambahkan domain Railway ini sebagai <b>Authorized JavaScript origin</b> di Google Cloud Console → APIs &amp; Services → Credentials → OAuth client "Nailong Runner Web". Sampai langkah itu selesai, login Google tetap tidak aktif dan aplikasi tidak boleh rusak — pengguna tetap bisa daftar/masuk dengan email.</p>
+      <label for="setGoogleClientId">Google Client ID</label><input id="setGoogleClientId" type="text" placeholder="xxxx.apps.googleusercontent.com">
+      <button class="btn btn-primary" id="btnSaveGoogleClientId" type="button">Simpan Google Client ID</button>
+    </section>
+    <section class="card"><h3>🔒 Ganti PIN</h3>
+      <form id="adminChangePinForm">
+        <label for="oldPin">PIN lama</label><input id="oldPin" type="password" inputmode="numeric" required>
+        <label for="newPin">PIN baru (4–8 digit)</label><input id="newPin" type="password" inputmode="numeric" required>
+        <button class="btn btn-primary" type="submit" style="width:100%">Ganti PIN</button>
+      </form>
+    </section>
+  </div>
+</main>
+<script src="/admin.js"></script>
+</body>
+</html>
