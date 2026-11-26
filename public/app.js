@@ -147,7 +147,7 @@ function renderOrders() {
     if (Array.isArray(o.items)) items = o.items.map((i) => esc(i.name || i.productId) + ' × ' + i.qty).join(', ');
     else if (o.items && typeof o.items === 'object') items = 'Langganan VIP ' + esc(o.items.tier) + ' — produk: ' + esc((o.items.productIds || []).join(', '));
     const payBtn = o.status === 'Menunggu Pembayaran' ? '<button class="btn btn-primary btn-small" type="button" data-confirm-pay="' + esc(o.id) + '">Saya sudah bayar</button>' : '';
-    return '<div class="order-item"><b>Pesanan #' + esc(String(o.id).slice(0, 8)) + '</b> — <span class="status ' + esc(o.status) + '">' + esc(o.status) + '</span><br><span class="small">' + items + '</span><br>Total: <b>' + rupiah(o.totalRp) + '</b> • ' + esc(o.createdAt || '') + '<div class="row">' + payBtn + '</div></div>';
+    return '<div class="order-item"><b>Pesanan #' + esc(String(o.id).slice(0, 8)) + '</b> — <span class="status ' + esc(o.status) + '">' + esc(o.status) + '</span><br><span class="small">' + items + '</span><br>Total: <b>' + rupiah(o.totalRp) + '</b>' + (o.discountRp > 0 ? ' • 🎟️ Pakai voucher −' + rupiah(o.discountRp) : '') + ' • ' + esc(o.createdAt || '') + '<div class="row">' + payBtn + '</div></div>';
   }).join('');
 }
 async function loadWallet() {
@@ -256,7 +256,7 @@ function openCart() {
     return '<div class="order-item"><b>' + esc(p.name) + '</b> × ' + i.qty + ' — ' + rupiah(p.priceRp * i.qty)
       + ' <button class="btn btn-small btn-outline" type="button" data-cart-dec="' + esc(p.id) + '">−</button> <button class="btn btn-small btn-outline" type="button" data-cart-inc="' + esc(p.id) + '">+</button> <button class="btn btn-small btn-outline" type="button" data-cart-del="' + esc(p.id) + '">Hapus</button></div>';
   }).join('');
-  openModal('<h2>🛒 Keranjang</h2>' + rows + '<p>Total: <b>' + rupiah(total) + '</b></p>'
+  openModal('<h2>🛒 Keranjang</h2>' + rows + '<p>Total: <b>' + rupiah(total) + '</b></p><p id="coDiscountLine" class="small"></p>'
     + '<form id="checkoutForm">' + voucherSelectHtml() + checkoutFormHtml(profile ? profile.user : {}) + qrisHtml()
     + '<button class="btn btn-primary" type="submit" style="width:100%;margin-top:10px">Buat Pesanan</button></form>');
 }
@@ -266,7 +266,7 @@ function openVipSubscribe(tier) {
   if (!isLoggedIn()) { toast('Masuk dulu untuk berlangganan VIP'); go('login'); return; }
   const choices = (t.choiceProducts || []).map((p) => '<label class="checkbox-row"><input type="checkbox" class="vip-pick" value="' + esc(p.id) + '"> ' + productImg(p, '') + '<span><b>' + esc(p.name) + '</b><br><span class="small">' + rupiah(p.priceRp) + '</span></span></label>').join('');
   openModal('<h2>👑 Langganan VIP ' + t.tier + ' — ' + esc(t.label || '') + '</h2><p>Harga langganan: <b>' + rupiah(t.priceRp) + '</b>. Pilih tepat <b>' + t.pickCount + '</b> produk gratis:</p>'
-    + '<form id="vipForm">' + choices + checkoutFormHtml(profile ? profile.user : {}) + qrisHtml()
+    + '<form id="vipForm">' + choices + voucherSelectHtml() + '<p id="coDiscountLine" class="small"></p>' + checkoutFormHtml(profile ? profile.user : {}) + qrisHtml()
     + '<p class="small muted">Langganan VIP tidak menjanjikan keuntungan apa pun. Kamu mendapatkan produk pilihanmu + voucher check-in harian selama masa langganan.</p>'
     + '<button class="btn btn-primary" type="submit" style="width:100%;margin-top:10px">Langganan VIP ' + t.tier + ' — ' + rupiah(t.priceRp) + '</button></form>');
 }
@@ -369,14 +369,40 @@ document.addEventListener('submit', async (e) => {
   if (e.target.id === 'vipForm') {
     e.preventDefault();
     const picks = $$('.vip-pick:checked').map((c) => c.value);
+    const vSel = document.getElementById('coVoucher');
     // Tier VIP diambil dari modal yang dibuka (disimpan di dataset saat openVipSubscribe)
     const t = Number($('#modalBox').dataset.vipTier || 0);
     try {
-      await authApi('/api/orders/vip', { method: 'POST', body: JSON.stringify({ tier: t, productIds: picks, name: $('#coName').value.trim(), address: $('#coAddress').value.trim(), phone: $('#coPhone').value.trim(), email: $('#coEmail').value.trim() }) });
+      await authApi('/api/orders/vip', { method: 'POST', body: JSON.stringify({ tier: t, productIds: picks, voucherId: vSel && vSel.value ? vSel.value : undefined, name: $('#coName').value.trim(), address: $('#coAddress').value.trim(), phone: $('#coPhone').value.trim(), email: $('#coEmail').value.trim() }) });
       closeModal(); toast('Langganan VIP berhasil dibuat — bayar lalu ketuk "Saya sudah bayar" di tab Saya.'); loadProfile(); go('saya');
     } catch (err) { toast('Langganan gagal: ' + err.message); }
   }
 });
+/* ---------- Pratinjau diskon voucher di checkout: harga langsung kepotong ---------- */
+document.addEventListener('change', (e) => {
+  if (!e.target || e.target.id !== 'coVoucher') return;
+  const line = document.getElementById('coDiscountLine');
+  if (!line) return;
+  const vs = (wallet && wallet.vouchers) || (profile && profile.vouchers) || [];
+  const v = vs.find((x) => String(x.id) === String(e.target.value));
+  const modal = document.getElementById('modalBox');
+  const vipTier = Number((modal && modal.dataset.vipTier) || 0);
+  let base = 0;
+  if (vipTier) {
+    const t = (catalog.vipTiers || []).find((x) => x.tier === vipTier);
+    base = t ? t.priceRp : 0;
+  } else {
+    base = getCart().reduce((sum, i) => {
+      const p = (catalog.products || []).find((x) => x.id === i.productId);
+      return sum + (p ? p.priceRp * i.qty : 0);
+    }, 0);
+  }
+  const disc = v ? Math.min(v.amountRp, base) : 0;
+  line.innerHTML = disc > 0
+    ? '🎟️ Voucher: −' + rupiah(disc) + ' • Bayar: <b>' + rupiah(Math.max(0, base - disc)) + '</b>'
+    : '';
+});
+
 // Simpan tier VIP yang sedang dipilih saat modal VIP dibuka
 const _openVip = openVipSubscribe;
 openVipSubscribe = function (tier) { _openVip(tier); const b = $('#modalBox'); if (b) b.dataset.vipTier = String(tier); };
