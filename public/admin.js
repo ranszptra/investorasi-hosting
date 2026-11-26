@@ -62,7 +62,7 @@ async function loadAdminOrders() {
     const os = r.orders || [];
     $('#adminOrders').innerHTML = os.length ? os.map((o) => {
       const next = NEXT_ORDER[o.status];
-      return '<div class="admin-row"><b>#' + esc(String(o.id).slice(0, 8)) + '</b> — <span class="status ' + esc(o.status) + '">' + esc(o.status) + '</span><br><span class="small">' + esc(o.name || '') + ' • ' + esc(o.phone || '') + ' • ' + rupiah(o.totalRp) + '<br>' + esc(o.address || '') + '</span>'
+      return '<div class="admin-row"><b>#' + esc(String(o.id).slice(0, 8)) + '</b> — <span class="status ' + esc(o.status) + '">' + esc(o.status) + '</span><br><span class="small">' + esc(o.name || '') + ' • ' + esc(o.phone || '') + ' • ' + rupiah(o.totalRp) + (o.discountRp > 0 ? '<br>🎟️ Pakai voucher: −' + rupiah(o.discountRp) : '') + '<br>' + esc(o.address || '') + '</span>'
         + (next ? '<div class="row"><button class="btn btn-primary btn-small" type="button" data-adv-order="' + esc(o.id) + '" data-adv-status="' + next + '">Ubah ke ' + next + '</button></div>' : '<p class="small muted">Pesanan selesai.</p>') + '</div>';
     }).join('') : '<p class="muted">Tidak ada pesanan.</p>';
   } catch (e) { $('#adminOrders').innerHTML = '<p class="muted">Gagal memuat pesanan.</p>'; }
