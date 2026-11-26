@@ -315,7 +315,7 @@ app.post('/api/orders', requireUser, ah(async (req, res) => {
 }));
 
 app.post('/api/orders/vip', requireUser, ah(async (req, res) => {
-  const { tier, productIds, name, address, phone, email } = req.body || {};
+  const { tier, productIds, voucherId, name, address, phone, email } = req.body || {};
   const err = validCheckout(req.body);
   if (err) return fail(res, 400, err);
   const t = parseInt(tier, 10);
@@ -332,10 +332,21 @@ app.post('/api/orders/vip', requireUser, ah(async (req, res) => {
     if (!p) return fail(res, 400, `Produk tidak tersedia: ${pid}`);
   }
   const items = { tier: t, productIds: picked };
+  let discountRp = 0;
+  let voucher = null;
+  try {
+    ({ discountRp, voucher } = await applyVoucher(req.user.id, voucherId, tierRow.priceRp));
+  } catch (e) {
+    return fail(res, e.status || 400, e.message);
+  }
+  const finalTotal = Math.max(0, tierRow.priceRp - discountRp);
   const r = await db.prepare(
     'INSERT INTO inv_orders(userId,type,items,totalRp,voucherId,discountRp,name,address,phone,email,status,createdAt) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
-  ).run(req.user.id, 'vip', JSON.stringify(items), tierRow.priceRp, null, 0,
+  ).run(req.user.id, 'vip', JSON.stringify(items), finalTotal, voucher ? voucher.id : null, discountRp,
     String(name).trim(), String(address).trim(), String(phone).trim(), String(email).trim(), 'Menunggu Pembayaran', nowIso());
+  if (voucher) {
+    await db.prepare("UPDATE inv_vouchers SET status='used', usedOrderId=? WHERE id=?").run(r.lastInsertRowid, voucher.id);
+  }
   const order = await db.prepare('SELECT * FROM inv_orders WHERE id=?').get(r.lastInsertRowid);
   res.json({ ok: true, order: { ...order, items: parseJson(order.items, {}) } });
 }));
