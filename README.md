@@ -40,7 +40,9 @@ npm test           # node --test tests/ (12+ cek backend + LOAD)
 - `server.js` — seluruh API (lihat `API.md`).
 - `db.js` — adapter pg/SQLite + seed (23 produk, 7 tingkat VIP, pengaturan).
 - `supabase-schema.sql` — skema Postgres (idempotent).
-- `public/` — frontend SPA (`index.html`, `app.js`, `style.css`),
+- `public/` — frontend toko (`index.html`, `app.js`, `style.css`),
+  Panel Pemilik terpisah (`admin.html`, `admin.js` — dibuka langsung di
+  `/admin.html`, TIDAK ada tombol/link panel di dalam toko),
   foto produk (`products/`), halaman kebijakan (`policies/`).
 - `tests/` — suite `node:test` (VIP pick-count, check-in, invite, komisi,
   withdraw, LOAD).
@@ -54,5 +56,5 @@ npm test           # node --test tests/ (12+ cek backend + LOAD)
 - Check-in: member VIP aktif, 1x/hari, 30 hari sejak langganan aktif;
   voucher per tingkat (VIP 1–4 Rp5.000, VIP 5–7 Rp15.000 — bisa diubah
   per tingkat di panel).
-- Panel Pemilik: tombol "Panel Pemilik" di tab Saya + `#admin`; PIN bawaan
-  (lihat panel) — WAJIB diganti pemilik di panel.
+- Panel Pemilik: halaman terpisah di `/admin.html` (PIN-gated, PIN bawaan
+  — WAJIB diganti pemilik di panel). Tidak ada tombol/link panel di toko.

@@ -17,7 +17,7 @@
 --   kolom JSON TEXT     -> jsonb (choices, items)
 --   base64 gambar       -> text (inv_blobs.data)
 --
--- CATATAN: PIN admin awal (123456) TIDAK di-seed di sini — hash scrypt-nya
+-- CATATAN: PIN admin awal TIDAK di-seed di sini — hash scrypt-nya
 -- dibuat aplikasi (db.js, fungsi seed()) saat pertama jalan, sama seperti
 -- di SQLite. Jangan pernah menulis PIN plaintext ke file ini.
 
@@ -55,6 +55,16 @@ CREATE TABLE IF NOT EXISTS inv_vip_tiers (
   pickCount integer NOT NULL DEFAULT 1,
   choices jsonb NOT NULL,
   checkinVoucherRp bigint NOT NULL DEFAULT 5000
+);
+
+CREATE TABLE IF NOT EXISTS inv_vouchers (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  userId bigint NOT NULL REFERENCES inv_users(id),
+  amountRp bigint NOT NULL,
+  status text NOT NULL DEFAULT 'active',
+  expiresAt text NOT NULL,
+  createdAt text NOT NULL,
+  usedOrderId bigint -- FK ke inv_orders ditambah di akhir file (DO block)
 );
 
 CREATE TABLE IF NOT EXISTS inv_orders (
@@ -121,16 +131,6 @@ CREATE TABLE IF NOT EXISTS inv_checkins (
   PRIMARY KEY (userId, date)
 );
 
-CREATE TABLE IF NOT EXISTS inv_vouchers (
-  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  userId bigint NOT NULL REFERENCES inv_users(id),
-  amountRp bigint NOT NULL,
-  status text NOT NULL DEFAULT 'active',
-  expiresAt text NOT NULL,
-  createdAt text NOT NULL,
-  usedOrderId bigint REFERENCES inv_orders(id)
-);
-
 CREATE TABLE IF NOT EXISTS inv_events (
   id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   title text NOT NULL,
@@ -158,3 +158,13 @@ CREATE TABLE IF NOT EXISTS inv_blobs (
   mime text NOT NULL,
   data text NOT NULL
 );
+
+-- FK sirkular inv_vouchers.usedOrderId -> inv_orders(id) ditambah di sini,
+-- SETELAH semua tabel ada. DO block membuatnya idempotent (aman dijalankan
+-- berulang, dan aman untuk database lama yang sudah punya FK ini).
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'inv_vouchers_usedorderid_fkey') THEN
+    ALTER TABLE inv_vouchers ADD CONSTRAINT inv_vouchers_usedorderid_fkey FOREIGN KEY (usedOrderId) REFERENCES inv_orders(id);
+  END IF;
+END $$;
