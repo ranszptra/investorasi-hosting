@@ -50,7 +50,7 @@ Semua respons sukses: `{ ok: true, ... }`. Error: `{ ok: false, error: "..." }` 
 - `POST /api/chat` `{message}` → `{ ok, id }`
 
 ## Admin (token admin)
-- `POST /api/admin/login` `{pin}` → `{ ok, token }` (PIN bawaan `123456`)
+- `POST /api/admin/login` `{pin}` → `{ ok, token }` (PIN bawaan — ganti di panel)
 - `POST /api/admin/change-pin` `{oldPin, newPin}` (newPin 4–8 digit)
 - `GET /api/admin/overview` → `{ ok, users, ordersByStatus, pendingWithdrawals, recentOrders, recentWithdrawals }`
 - `GET /api/admin/orders?status=` → `{ ok, orders }`

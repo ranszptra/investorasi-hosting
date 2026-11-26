@@ -55,4 +55,4 @@ npm test           # node --test tests/ (12+ cek backend + LOAD)
   voucher per tingkat (VIP 1–4 Rp5.000, VIP 5–7 Rp15.000 — bisa diubah
   per tingkat di panel).
 - Panel Pemilik: tombol "Panel Pemilik" di tab Saya + `#admin`; PIN bawaan
-  `123456` — WAJIB diganti pemilik di panel.
+  (lihat panel) — WAJIB diganti pemilik di panel.
